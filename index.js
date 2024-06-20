@@ -278,9 +278,9 @@ function checkName(name, context) {
 function unknownQuery(query) {
   return new BrowserslistError(
     'Unknown browser query `' +
-      query +
-      '`. ' +
-      'Maybe you are using old Browserslist or made typo in query.'
+    query +
+    '`. ' +
+    'Maybe you are using old Browserslist or made typo in query.'
   )
 }
 
@@ -319,9 +319,9 @@ function resolve(queries, context) {
     if (node.not && index === 0) {
       throw new BrowserslistError(
         'Write any browsers query (for instance, `defaults`) ' +
-          'before `' +
-          node.query +
-          '`'
+        'before `' +
+        node.query +
+        '`'
       )
     }
     var type = QUERIES[node.type]
@@ -557,6 +557,57 @@ function sinceQuery(context, node) {
   return filterByYear(Date.UTC(year, month, day, 0, 0, 0), context)
 }
 
+function baselineQuery(context, node) {
+
+  var baselineBrowsers = [
+    "edge",
+    "firefox",
+    "chrome",
+    "safari",
+    "ios_saf",
+    "and_chr",
+    "and_ff"
+  ]
+
+  // set start point for selecting versions
+  var startEpoch = 'year' in node
+    ? Math.floor(new Date(`${parseInt(node.year) + 1}.01.01`).getTime() / 1000)
+    : Math.floor(new Date().setMonth(new Date().getMonth() - 30) / 1000);
+
+  var versions = [];
+
+  // Loop through Baseline core browser set
+  baselineBrowsers.forEach(browser => {
+    var browserVersions = [];
+
+    // Get all versions after the specified cutoff date
+    Object.entries(agents[browser].release_date).filter(([version, release_epoch]) => {
+      if (release_epoch >= startEpoch) {
+        return true;
+      }
+      return false
+    }).forEach((data, index, arr) => {
+      browserVersions.push(`${browser} ${data[0]}`);
+    });
+
+    // Get the last version *before* the specified cutoff date
+    if (browserVersions.length != 1) {
+      Object.entries(agents[browser].release_date).forEach((data, index, arr) => {
+        if (data[0] == browserVersions[0].split(" ")[1]) {
+          browserVersions.unshift(`${browser} ${arr[index - 1][0]}`)
+        }
+      });
+    }
+
+    versions.push(...browserVersions);
+
+  });
+
+  return versions;
+
+};
+
+
 function coverQuery(context, node) {
   var coverage = parseFloat(node.coverage)
   var usage = browserslist.usage.global
@@ -741,6 +792,16 @@ var QUERIES = {
     matches: ['year', 'month', 'day'],
     regexp: /^since (\d+)-(\d+)-(\d+)$/i,
     select: sinceQuery
+  },
+  baseline_widely_available_versions: {
+    matches: [],
+    regexp: /^baseline$/i,
+    select: baselineQuery
+  },
+  baseline_year_versions: {
+    matches: ['year'],
+    regexp: /^baseline (\d+)$/i,
+    select: baselineQuery
   },
   popularity: {
     matches: ['sign', 'popularity'],
@@ -1001,6 +1062,7 @@ var QUERIES = {
     matches: ['browser', 'sign', 'version'],
     regexp: /^(\w+)\s*(>=?|<=?)\s*([\d.]+)$/,
     select: function (context, node) {
+      console.log(context);
       var version = node.version
       var data = checkName(node.browser, context)
       var alias = browserslist.versionAliases[data.name][version]
@@ -1176,36 +1238,36 @@ var QUERIES = {
   }
 }
 
-// Get and convert Can I Use data
+  // Get and convert Can I Use data
 
-;(function () {
-  for (var name in agents) {
-    var browser = agents[name]
-    browserslist.data[name] = {
-      name: name,
-      versions: normalize(agents[name].versions),
-      released: normalize(agents[name].versions.slice(0, -3)),
-      releaseDate: agents[name].release_date
-    }
-    fillUsage(browserslist.usage.global, name, browser.usage_global)
+  ; (function () {
+    for (var name in agents) {
+      var browser = agents[name]
+      browserslist.data[name] = {
+        name: name,
+        versions: normalize(agents[name].versions),
+        released: normalize(agents[name].versions.slice(0, -3)),
+        releaseDate: agents[name].release_date
+      }
+      fillUsage(browserslist.usage.global, name, browser.usage_global)
 
-    browserslist.versionAliases[name] = {}
-    for (var i = 0; i < browser.versions.length; i++) {
-      var full = browser.versions[i]
-      if (!full) continue
+      browserslist.versionAliases[name] = {}
+      for (var i = 0; i < browser.versions.length; i++) {
+        var full = browser.versions[i]
+        if (!full) continue
 
-      if (full.indexOf('-') !== -1) {
-        var interval = full.split('-')
-        for (var j = 0; j < interval.length; j++) {
-          browserslist.versionAliases[name][interval[j]] = full
+        if (full.indexOf('-') !== -1) {
+          var interval = full.split('-')
+          for (var j = 0; j < interval.length; j++) {
+            browserslist.versionAliases[name][interval[j]] = full
+          }
         }
       }
     }
-  }
 
-  browserslist.nodeVersions = jsReleases.map(function (release) {
-    return release.version
-  })
-})()
+    browserslist.nodeVersions = jsReleases.map(function (release) {
+      return release.version
+    })
+  })()
 
 module.exports = browserslist
