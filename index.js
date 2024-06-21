@@ -794,7 +794,7 @@ var QUERIES = {
   },
   baseline_widely_available_versions: {
     matches: [],
-    regexp: /^baseline$/i,
+    regexp: /^baseline\s+widely\s+available$/i,
     select: baselineQuery
   },
   baseline_year_versions: {

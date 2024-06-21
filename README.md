@@ -275,6 +275,14 @@ You can specify the browser and Node.js versions by queries (case insensitive):
     full or partial support for specific features. For example,
     `partially supports css-grid` will include Edge 12-15 support, as those
     browser versions are marked as [having partial support].
+* By Baseline feature set:
+  [Baseline] describes features that are interoperable across Chrome for
+  Desktop and Android, Microsoft Edge, Firefox for Desktop and Android and Safari
+  for macOS and iOS back to 2016.
+  * `baseline widely available`: select browsers that support features that were
+  interoperable across the Baseline browser set 30 months ago.
+  * `baseline 2019`: select browsers that support features that were interoperable
+  across the Baseline browser set at the end of 2019.
 * `browserslist config`: the browsers defined in Browserslist config. Useful
   in Differential Serving to modify user’s config like
   `browserslist config and fully supports es6-module`.
@@ -294,6 +302,7 @@ You can add `not ` to any query.
 [Can I Use]:                   https://caniuse.com/
 [Firefox Extended Support Release]: https://support.mozilla.org/en-US/kb/choosing-firefox-update-channel
 [having partial support]: https://caniuse.com/css-grid
+[Baseline]: https://developer.mozilla.org/en-US/docs/Glossary/Baseline/Compatibility
 
 ### Grammar Definition
 
