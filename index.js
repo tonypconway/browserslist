@@ -278,9 +278,9 @@ function checkName(name, context) {
 function unknownQuery(query) {
   return new BrowserslistError(
     'Unknown browser query `' +
-    query +
-    '`. ' +
-    'Maybe you are using old Browserslist or made typo in query.'
+      query +
+      '`. ' +
+      'Maybe you are using old Browserslist or made typo in query.'
   )
 }
 
@@ -319,9 +319,9 @@ function resolve(queries, context) {
     if (node.not && index === 0) {
       throw new BrowserslistError(
         'Write any browsers query (for instance, `defaults`) ' +
-        'before `' +
-        node.query +
-        '`'
+          'before `' +
+          node.query +
+          '`'
       )
     }
     var type = QUERIES[node.type]
@@ -606,7 +606,6 @@ function baselineQuery(context, node) {
   return versions;
 
 };
-
 
 function coverQuery(context, node) {
   var coverage = parseFloat(node.coverage)
@@ -1062,7 +1061,6 @@ var QUERIES = {
     matches: ['browser', 'sign', 'version'],
     regexp: /^(\w+)\s*(>=?|<=?)\s*([\d.]+)$/,
     select: function (context, node) {
-      console.log(context);
       var version = node.version
       var data = checkName(node.browser, context)
       var alias = browserslist.versionAliases[data.name][version]
@@ -1238,36 +1236,36 @@ var QUERIES = {
   }
 }
 
-  // Get and convert Can I Use data
+// Get and convert Can I Use data
 
-  ; (function () {
-    for (var name in agents) {
-      var browser = agents[name]
-      browserslist.data[name] = {
-        name: name,
-        versions: normalize(agents[name].versions),
-        released: normalize(agents[name].versions.slice(0, -3)),
-        releaseDate: agents[name].release_date
-      }
-      fillUsage(browserslist.usage.global, name, browser.usage_global)
+;(function () {
+  for (var name in agents) {
+    var browser = agents[name]
+    browserslist.data[name] = {
+      name: name,
+      versions: normalize(agents[name].versions),
+      released: normalize(agents[name].versions.slice(0, -3)),
+      releaseDate: agents[name].release_date
+    }
+    fillUsage(browserslist.usage.global, name, browser.usage_global)
 
-      browserslist.versionAliases[name] = {}
-      for (var i = 0; i < browser.versions.length; i++) {
-        var full = browser.versions[i]
-        if (!full) continue
+    browserslist.versionAliases[name] = {}
+    for (var i = 0; i < browser.versions.length; i++) {
+      var full = browser.versions[i]
+      if (!full) continue
 
-        if (full.indexOf('-') !== -1) {
-          var interval = full.split('-')
-          for (var j = 0; j < interval.length; j++) {
-            browserslist.versionAliases[name][interval[j]] = full
-          }
+      if (full.indexOf('-') !== -1) {
+        var interval = full.split('-')
+        for (var j = 0; j < interval.length; j++) {
+          browserslist.versionAliases[name][interval[j]] = full
         }
       }
     }
+  }
 
-    browserslist.nodeVersions = jsReleases.map(function (release) {
-      return release.version
-    })
-  })()
+  browserslist.nodeVersions = jsReleases.map(function (release) {
+    return release.version
+  })
+})()
 
 module.exports = browserslist
