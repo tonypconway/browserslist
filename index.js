@@ -558,7 +558,6 @@ function sinceQuery(context, node) {
 }
 
 function baselineQuery(context, node) {
-
   var baselineBrowsers = [
     "edge",
     "firefox",
@@ -568,43 +567,29 @@ function baselineQuery(context, node) {
     "and_chr",
     "and_ff"
   ]
-
   // set start point for selecting versions
   var startEpoch = 'year' in node
     ? Math.floor(new Date(`${parseInt(node.year) + 1}.01.01`).getTime() / 1000)
     : Math.floor(new Date().setMonth(new Date().getMonth() - 30) / 1000);
-
   var versions = [];
-
   // Loop through Baseline core browser set
   baselineBrowsers.forEach(browser => {
-    var browserVersions = [];
-
-    // Get all versions after the specified cutoff date
-    Object.entries(agents[browser].release_date).filter(([version, release_epoch]) => {
+    // Needed to add last version before cutoff point
+    var oneVersionSelected = false;
+    Object.entries(agents[browser].release_date).forEach(([version, release_epoch], index, arr) => {
       if (release_epoch >= startEpoch) {
-        return true;
-      }
-      return false
-    }).forEach((data, index, arr) => {
-      browserVersions.push(`${browser} ${data[0]}`);
-    });
-
-    // Get the last version *before* the specified cutoff date
-    if (browserVersions.length != 1) {
-      Object.entries(agents[browser].release_date).forEach((data, index, arr) => {
-        if (data[0] == browserVersions[0].split(" ")[1]) {
-          browserVersions.unshift(`${browser} ${arr[index - 1][0]}`)
+        // If there's more than one version available and none have been selected yet
+        if (!oneVersionSelected && arr.length > 1) {
+          // Add the last version before cutoff date to the selection
+          versions.push(`${browser} ${arr[index - 1][0]}`);
+          // And record that it has been selected
+          oneVersionSelected = true;
         }
-      });
-    }
-
-    versions.push(...browserVersions);
-
+        versions.push(`${browser} ${version}`)
+      }
+    });
   });
-
   return versions;
-
 };
 
 function coverQuery(context, node) {
