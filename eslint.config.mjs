@@ -8,7 +8,7 @@ let compat = new FlatCompat({
 
 let es5 = compat.extends('plugin:es5/no-es2015')
 
-/** @type {import('eslint').Linter.FlatConfig[]} */
+/** @type {import('eslint').Linter.Config[]} */
 export default [
   { ignores: ['coverage'] },
   ...loguxConfig,
@@ -61,7 +61,14 @@ export default [
   {
     files: ['eslint.config.mjs'],
     rules: {
-      'es5/no-modules': 'off'
+      'es5/no-modules': 'off',
+      'n/no-unsupported-features/node-builtins': [
+        'error',
+        {
+          version: '>=22.0.0',
+          ignores: []
+        }
+      ]
     }
   }
 ]

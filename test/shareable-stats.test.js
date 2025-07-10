@@ -1,7 +1,7 @@
-let { test } = require('uvu')
-let { equal, throws } = require('uvu/assert')
 let { ensureDir, writeFile, remove } = require('fs-extra')
 let { join } = require('path')
+let { test } = require('uvu')
+let { equal, throws } = require('uvu/assert')
 
 delete require.cache[require.resolve('..')]
 let browserslist = require('..')
@@ -36,6 +36,16 @@ test('takes stats from shareable config', async () => {
     dataByBrowser: { chrome: { 55: 4, 56: 6 } }
   })
   equal(browserslist('> 5% in browserslist-config-test1 stats'), ['chrome 56'])
+})
+
+test('takes stats for cover from shareable config', async () => {
+  await mock('browserslist-config-test1', undefined, {
+    dataByBrowser: { chrome: { 55: 4, 56: 6 } }
+  })
+  equal(browserslist('cover 95% in browserslist-config-test1 stats'), [
+    'chrome 56',
+    'chrome 55'
+  ])
 })
 
 test('takes stats and queries from shareable config', async () => {
