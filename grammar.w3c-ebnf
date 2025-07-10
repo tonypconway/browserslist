@@ -54,9 +54,7 @@ Years ::= 'last' Space+ Numeric Space+ 'year' 's'?
 
 Since ::= 'since' Space Digit+ ('-' Digit+ ('-' Digit+)?)?
 
-BaselineWidelyAvailable ::= 'baseline' Space 'widely' Space 'available'
-
-BaselineYear ::= 'baseline' Space Digit+
+Baseline ::= 'baseline' Space (Digit+ | ('newly' | 'widely') Space 'available' (Space 'on' Space Digit+ ('-' Digit+ ('-' Digit+)?)?)? (' with downstream')?)
 
 Region ::= ('alt-' [a-z][a-z] | [A-Z][A-Z])
 

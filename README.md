@@ -282,6 +282,8 @@ You can specify the browser and Node.js versions by queries (case insensitive):
   interoperable across the Baseline browser set 30 months ago.
   * `baseline 2019`: select browsers that support features that were interoperable
   across the Baseline browser set at the end of 2019.
+  * `baseline widely available on YYYY-MM-DD`: select browsers that support features that were Baseline Widely available on a specific date.  This can be useful if you are using a framework like Angular or Vite which tie their browser support to Baseline Widely available on the day of each version release.
+  * `[any baseline query] with downstream`: Include browsers that can be mapped back to their upstream Chromium version by [`baseline-browser-mapping`](https://github.com/web-platform-dx/baseline-browser-mapping#downstream-browsers).  This won't change the supported features but it can be useful when estimating user support levels based on your analytics data.
 * `browserslist config`: the browsers defined in Browserslist config. Useful
   in Differential Serving to modify user’s config like
   `browserslist config and fully supports es6-module`.

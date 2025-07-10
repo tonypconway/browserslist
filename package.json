@@ -32,6 +32,7 @@
     "test": "pnpm run /^test:/"
   },
   "dependencies": {
+    "baseline-browser-mapping": "^2.5.3",
     "caniuse-lite": "^1.0.30001726",
     "electron-to-chromium": "^1.5.173",
     "node-releases": "^2.0.19",
