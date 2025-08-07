@@ -1260,7 +1260,7 @@ var QUERIES = {
   }
 }
 
-  // Get and convert Can I Use data
+// Get and convert Can I Use data
 
 ;(function () {
   for (var name in agents) {
