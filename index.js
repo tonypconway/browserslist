@@ -1,9 +1,9 @@
+var bbm = require('baseline-browser-mapping');
 var jsReleases = require('node-releases/data/processed/envs.json')
 var agents = require('caniuse-lite/dist/unpacker/agents').agents
 var e2c = require('electron-to-chromium/versions')
 var jsEOL = require('node-releases/data/release-schedule/release-schedule.json')
 var path = require('path')
-var { getCompatibleVersions } = require('baseline-browser-mapping');
 
 var BrowserslistError = require('./error')
 var env = require('./node')
@@ -283,9 +283,9 @@ function checkName(name, context) {
 function unknownQuery(query) {
   return new BrowserslistError(
     'Unknown browser query `' +
-    query +
-    '`. ' +
-    'Maybe you are using old Browserslist or made typo in query.'
+      query +
+      '`. ' +
+      'Maybe you are using old Browserslist or made typo in query.'
   )
 }
 
@@ -324,9 +324,9 @@ function resolve(queries, context) {
     if (node.not && index === 0) {
       throw new BrowserslistError(
         'Write any browsers query (for instance, `defaults`) ' +
-        'before `' +
-        node.query +
-        '`'
+          'before `' +
+          node.query +
+          '`'
       )
     }
     var type = QUERIES[node.type]
@@ -594,8 +594,8 @@ function sinceQuery(context, node) {
   return filterByYear(Date.UTC(year, month, day, 0, 0, 0), context)
 }
 
-function bbmTransform(bbm_versions) {
-  const browsers = {
+function bbmTransform(bbmVersions) {
+  var browsers = {
     chrome: "Chrome",
     chrome_android: "ChromeAndroid",
     edge: "Edge",
@@ -611,9 +611,9 @@ function bbmTransform(bbm_versions) {
     uc_android: "and_uc",
   };
 
-  return bbm_versions
-    .filter((version) => Object.keys(browsers).includes(version.browser))
-    .map((version) => `${browsers[version.browser]} >= ${version.version}`);
+  return bbmVersions
+    .filter(function (version) { return Object.keys(browsers).indexOf(version.browser) !== -1 })
+    .map(function (version) { return browsers[version.browser] + ' >= ' + version.version });
 }
 
 function coverQuery(context, node) {
@@ -812,21 +812,21 @@ var QUERIES = {
     //   baseline widely available on 2024-06-01
     regexp: /^baseline\s+(?:(\d+)|(newly|widely)\s+available(?:\s+on\s+(\d{4}-\d{2}-\d{2}))?)?(\s+with\s+downstream)?$/i,
     select: function (context, node) {
-      var baseline_versions;
-      var include_downstream = node.downstream ? true : false;
+      var baselineVersions;
+      var includeDownstream = !!node.downstream;
       if (node.year) {
-        baseline_versions = getCompatibleVersions({ targetYear: node.year, includeDownstreamBrowsers: include_downstream })
+        baselineVersions = bbm.getCompatibleVersions({ targetYear: node.year, includeDownstreamBrowsers: includeDownstream })
       }
       else if (node.date) {
-        baseline_versions = getCompatibleVersions({ widelyAvailableOnDate: node.date, includeDownstreamBrowsers: include_downstream })
+        baselineVersions = bbm.getCompatibleVersions({ widelyAvailableOnDate: node.date, includeDownstreamBrowsers: includeDownstream })
       }
       else if (node.availability === "newly") {
         var future30months = new Date().setMonth(new Date().getMonth() + 30)
-        baseline_versions = getCompatibleVersions({ widelyAvailableOnDate: future30months, includeDownstreamBrowsers: include_downstream })
+        baselineVersions = bbm.getCompatibleVersions({ widelyAvailableOnDate: future30months, includeDownstreamBrowsers: includeDownstream })
       } else {
-        baseline_versions = getCompatibleVersions({ includeDownstreamBrowsers: include_downstream })
+        baselineVersions = bbm.getCompatibleVersions({ includeDownstreamBrowsers: includeDownstream })
       }
-      return bbmTransform(baseline_versions);
+      return bbmTransform(baselineVersions);
     }
   },
   popularity: {
@@ -1262,34 +1262,34 @@ var QUERIES = {
 
   // Get and convert Can I Use data
 
-  ; (function () {
-    for (var name in agents) {
-      var browser = agents[name]
-      browserslist.data[name] = {
-        name: name,
-        versions: normalize(agents[name].versions),
-        released: normalize(agents[name].versions.slice(0, -3)),
-        releaseDate: agents[name].release_date
-      }
-      fillUsage(browserslist.usage.global, name, browser.usage_global)
+;(function () {
+  for (var name in agents) {
+    var browser = agents[name]
+    browserslist.data[name] = {
+      name: name,
+      versions: normalize(agents[name].versions),
+      released: normalize(agents[name].versions.slice(0, -3)),
+      releaseDate: agents[name].release_date
+    }
+    fillUsage(browserslist.usage.global, name, browser.usage_global)
 
-      browserslist.versionAliases[name] = {}
-      for (var i = 0; i < browser.versions.length; i++) {
-        var full = browser.versions[i]
-        if (!full) continue
+    browserslist.versionAliases[name] = {}
+    for (var i = 0; i < browser.versions.length; i++) {
+      var full = browser.versions[i]
+      if (!full) continue
 
-        if (full.indexOf('-') !== -1) {
-          var interval = full.split('-')
-          for (var j = 0; j < interval.length; j++) {
-            browserslist.versionAliases[name][interval[j]] = full
-          }
+      if (full.indexOf('-') !== -1) {
+        var interval = full.split('-')
+        for (var j = 0; j < interval.length; j++) {
+          browserslist.versionAliases[name][interval[j]] = full
         }
       }
     }
+  }
 
-    browserslist.nodeVersions = jsReleases.map(function (release) {
-      return release.version
-    })
-  })()
+  browserslist.nodeVersions = jsReleases.map(function (release) {
+    return release.version
+  })
+})()
 
 module.exports = browserslist
