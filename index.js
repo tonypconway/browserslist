@@ -596,24 +596,31 @@ function sinceQuery(context, node) {
 
 function bbmTransform(bbmVersions) {
   var browsers = {
-    chrome: "Chrome",
-    chrome_android: "ChromeAndroid",
-    edge: "Edge",
-    firefox: "Firefox",
-    firefox_android: "FirefoxAndroid",
-    safari: "Safari",
-    safari_ios: "iOS",
-    webview_android: "Android",
-    samsunginternet_android: "Samsung",
+    chrome: "chrome",
+    chrome_android: "and_chr",
+    edge: "edge",
+    firefox: "firefox",
+    firefox_android: "and_ff",
+    safari: "safari",
+    safari_ios: "ios_saf",
+    webview_android: "android",
+    samsunginternet_android: "samsung",
     opera_android: "op_mob",
-    opera: "Opera",
+    opera: "opera",
     qq_android: "and_qq",
     uc_android: "and_uc",
   };
 
   return bbmVersions
     .filter(function (version) { return Object.keys(browsers).indexOf(version.browser) !== -1 })
-    .map(function (version) { return browsers[version.browser] + ' >= ' + version.version });
+    .filter(function (version) {
+      return (
+        agents[browsers[version.browser]].versions.indexOf(version.version) !== -1
+        ||
+        agents[browsers[version.browser]].versions.indexOf(version.version + ".0") !== -1
+      )
+    })
+    .map(function (version) { return browsers[version.browser] + ' ' + version.version });
 }
 
 function coverQuery(context, node) {
@@ -815,16 +822,16 @@ var QUERIES = {
       var baselineVersions;
       var includeDownstream = !!node.downstream;
       if (node.year) {
-        baselineVersions = bbm.getCompatibleVersions({ targetYear: node.year, includeDownstreamBrowsers: includeDownstream })
+        baselineVersions = bbm.getCompatibleVersions({ targetYear: node.year, includeDownstreamBrowsers: includeDownstream, listAllCompatibleVersions: true })
       }
       else if (node.date) {
-        baselineVersions = bbm.getCompatibleVersions({ widelyAvailableOnDate: node.date, includeDownstreamBrowsers: includeDownstream })
+        baselineVersions = bbm.getCompatibleVersions({ widelyAvailableOnDate: node.date, includeDownstreamBrowsers: includeDownstream, listAllCompatibleVersions: true })
       }
       else if (node.availability === "newly") {
         var future30months = new Date().setMonth(new Date().getMonth() + 30)
-        baselineVersions = bbm.getCompatibleVersions({ widelyAvailableOnDate: future30months, includeDownstreamBrowsers: includeDownstream })
+        baselineVersions = bbm.getCompatibleVersions({ widelyAvailableOnDate: future30months, includeDownstreamBrowsers: includeDownstream, listAllCompatibleVersions: true })
       } else {
-        baselineVersions = bbm.getCompatibleVersions({ includeDownstreamBrowsers: includeDownstream })
+        baselineVersions = bbm.getCompatibleVersions({ includeDownstreamBrowsers: includeDownstream, listAllCompatibleVersions: true })
       }
       return bbmTransform(baselineVersions);
     }
