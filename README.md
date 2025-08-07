@@ -275,7 +275,7 @@ You can specify the browser and Node.js versions by queries (case insensitive):
     `partially supports css-grid` will include Edge 12-15 support, as those
     browser versions are marked as [having partial support].
 * By Baseline feature set:
-  [Baseline] describes features that are interoperable across Chrome for
+  [Baseline](https://web-platform-dx.github.io/web-features/) describes features that are interoperable across Chrome for
   Desktop and Android, Microsoft Edge, Firefox for Desktop and Android and Safari
   for macOS and iOS back to 2016.
   * `baseline widely available`: select browsers that support features that were
